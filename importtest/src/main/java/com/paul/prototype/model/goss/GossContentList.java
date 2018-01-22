@@ -1,51 +1,31 @@
-package com.paul.prototype.model;
+package com.paul.prototype.model.goss;
+
+import org.json.simple.JSONObject;
 
 import java.util.*;
 
-public class ContentMetaList extends ArrayList<ContentMeta> {
+public class GossContentList extends ArrayList<GossContent> {
 
-    private Map<Long, ContentMeta> contentMetaMap;
+    private Map<Long, GossContent> contentMetaMap;
     private Stack<Long> stack;
     private boolean sorted = false;
 
-
-    public void add(Object articleId, Object articleParentId) {
-        // TODO Test articleid not null and is numeric
-        // TODO migration report
-        Long articleIdInt = null;
-        Long articleParentIdInt = null;
-        if (null != articleId) {
-            articleIdInt = (Long) articleId;
-        }
-        if (null != articleParentId) {
-
-            if (articleParentId instanceof Long) {
-                articleParentIdInt = (Long) articleParentId;
-            } else {
-                articleParentIdInt = null;
-            }
-        }
-
-        ContentMeta contentMeta = new ContentMeta(articleIdInt, articleParentIdInt);
-        this.add(contentMeta);
-    }
-
-    public void calculateDepths() {
+    public void generateJcrStructure() {
         if (!sorted) {
 
             contentMetaMap = new HashMap<>();
-            for (ContentMeta p : this) {
+            for (GossContent p : this) {
                 contentMetaMap.put(p.getId(), p);
             }
 
-            for (ContentMeta p : this) {
+            for (GossContent p : this) {
                 if (p.getDepth() == null) {
                     stack = new Stack<>();
                     calculateDepth(p);
                 }
             }
 
-            for (ContentMeta p : this) {
+            for (GossContent p : this) {
                 p.setDepth(contentMetaMap.get(p.getId()).getDepth());
             }
             Collections.sort(this);
@@ -53,7 +33,7 @@ public class ContentMetaList extends ArrayList<ContentMeta> {
         sorted = true;
     }
 
-    private void calculateDepth(ContentMeta p) {
+    private void calculateDepth(GossContent p) {
         stack.push(p.getId());
         // Check for possible circular dependency and output something useful rather than stack overflow
         if (stack.size() > 30) {
@@ -74,18 +54,20 @@ public class ContentMetaList extends ArrayList<ContentMeta> {
         // No parent
         if (p.getParentId() == null) {
             p.setDepth(1);
+            p.setJcrPath("/");
             return;
         }
 
         // Not yet calculated and has parent.  Need to go
         // down tree of parents and find longest branch.
-        ContentMeta p1 = contentMetaMap.get(p.getParentId());
+        GossContent p1 = contentMetaMap.get(p.getParentId());
 
         if (null == p1.getDepth()) {
             calculateDepth(p1);
         }
 
         p.setDepth(p1.getDepth() + 1);
+        p.setJcrPath(p1.getJcrPath() + p1.getJcrNodeName() + "/");
     }
 
 }

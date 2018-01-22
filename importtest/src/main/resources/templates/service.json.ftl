@@ -1,23 +1,23 @@
 <#-- @ftlvariable name="publication" type="uk.nhs.digital.ps.migrator.model.hippo.Publication" -->
 {
-  "name" : "${publication.jcrNodeName}",
-  "primaryType" : "publicationsystem:publication",
+  "name" : "${service.jcrNodeName}",
+  "primaryType" : "publicationsystem:service",
   "mixinTypes" : [ "mix:referenceable", "hippotaxonomy:classifiable" ],
   "properties" : [ {
     "name" : "jcr:path",
     "type" : "STRING",
     "multiple" : false,
-    "values" : [ "${publication.jcrPath}" ]
+    "values" : [ "${service.jcrPath}" ]
   }, {
     "name" : "jcr:localizedName",
     "type" : "STRING",
     "multiple" : false,
-    "values" : [ "${publication.localizedName}" ]
+    "values" : [ "${service.localizedName}" ]
   }, {
     "name" : "publicationsystem:Title",
     "type" : "STRING",
     "multiple" : false,
-    "values" : [ "${publication.title}" ]
+    "values" : [ "${service.title}" ]
   }, {
     "name" : "publicationsystem:InformationType",
     "type" : "STRING",
@@ -27,7 +27,7 @@
     "name" : "publicationsystem:Summary",
     "type" : "STRING",
     "multiple" : false,
-    "values" : [ "${publication.summary}" ]
+    "values" : [ "${service.summary}" ]
   }, {
     "name" : "publicationsystem:CoverageEnd",
     "type" : "DATE",

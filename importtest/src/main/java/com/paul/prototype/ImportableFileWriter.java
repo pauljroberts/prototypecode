@@ -1,6 +1,6 @@
 package com.paul.prototype;
 
-import com.paul.prototype.model.HippoImportableItem;
+import com.paul.prototype.model.hippo.HippoImportable;
 import freemarker.core.JSONOutputFormat;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -20,13 +20,13 @@ import static com.paul.prototype.misc.TextHelper.toLowerCaseDashedValue;
 public class ImportableFileWriter {
     private static Configuration cfg;
 
-    void writeImportableFiles(final List<? extends HippoImportableItem> importableItems,
+    void writeImportableFiles(final List<? extends HippoImportable> importableItems,
                               final Path targetDir) {
 
 
         for (int i = 1; i <= importableItems.size(); i++) {
 
-            final HippoImportableItem importableItem = importableItems.get(i - 1);
+            final HippoImportable importableItem = importableItems.get(i - 1);
 
             writeImportableFile(
                     importableItem,
@@ -36,7 +36,7 @@ public class ImportableFileWriter {
         }
     }
 
-    private void writeImportableFile(final HippoImportableItem importableItem,
+    private void writeImportableFile(final HippoImportable importableItem,
                                      final String fileName,
                                      final Path targetDir) {
 
@@ -51,7 +51,7 @@ public class ImportableFileWriter {
 
             final Writer writer = new StringWriter();
 
-            template.process(new HashMap<String, Object>(){{
+            template.process(new HashMap<String, Object>() {{
                 put(itemTypeName, importableItem);
             }}, writer);
 
@@ -61,9 +61,9 @@ public class ImportableFileWriter {
 
         } catch (final Exception e) {
             // If we fail with one file, make a note of the document that failed and carry on
-         //   migrationReport.logError(e, "Failed to write out item:", "Item will not be imported", importableItem.toString());
+            //   migrationReport.logError(e, "Failed to write out item:", "Item will not be imported", importableItem.toString());
 
-           System.out.println(e);
+            System.out.println(e);
         }
     }
 
@@ -80,11 +80,11 @@ public class ImportableFileWriter {
         return cfg;
     }
 
-    private static String getFileName(final int i, final HippoImportableItem importableItem) {
+    private static String getFileName(final int i, final HippoImportable importableItem) {
         return String.format(
                 "%06d%s_%s%s_%s.json",
                 i,
-                StringUtils.leftPad("",importableItem.getDepth(), '_'),
+                StringUtils.leftPad("", 1, '_'),
                 importableItem.getClass().getSimpleName().toUpperCase(),
                 "",
                 toLowerCaseDashedValue(importableItem.getLocalizedName())
