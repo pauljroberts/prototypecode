@@ -1,27 +1,114 @@
 package com.paul.prototype.misc;
 
 
+import com.paul.prototype.model.goss.GossContent;
+import com.paul.prototype.model.hippo.Section;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 
+import java.util.List;
+import java.util.Map;
+
 public class HtmlHelper {
 
-    public static String testString = "<html><!--textbody id=\\\"__DEFAULT\\\"--><!--\\/textbody--><!--textbody id=\\\"CTA\\\"--><p><a href=\\\"mailto:media@hscic.gov.uk\\\">Contact the press office<\\/a>&nbsp;or call <span style=\\\"font-weight:bold\\\">0300 303 3888<\\/span> (between 9am and 5pm and for urgent out-of-hours calls)<\\/p><!--\\/textbody--><!--textbody id=\\\"COMPONENT\\\"--><!--\\/textbody--><!--textbody id=\\\"UPPERBODY\\\"--><!--\\/textbody--></html>";
-    public static String testString2 = "<!--textbody id=\\\"__DEFAULT\\\"--><p>Beverley Bryant, Director of Digital Transformation, NHS Digital, will be the keynote speaker on 19 October.<\\/p><!--\\/textbody--><!--textbody id=\\\"CTA\\\"--><!--\\/textbody--><!--textbody id=\\\"COMPONENT\\\"--><!--\\/textbody--><!--textbody id=\\\"UPPERBODY\\\"--><p><strong><a href=\\\"http:\\/\\/itecconf.org.uk\\/\\\">Visit the event website<\\/a><\\/strong><\\/p><!--\\/textbody-->";
+    private enum TextSections{
+        TOPTASKS("UPPERBODY")
+        , CONTACT_INFO("CTA")
+        , INTRO_AND_SECTIONS("__DEFAULT")
+        // TODO Don't have a use for this one yet.  It does have rich data though.
+        , COMPONENT("COMPONENT")
+        ;
 
-    public static void test1(String html){
-        System.out.println("Before:");
-        System.out.println(html);
-        // .replace("\"", "&quot;")
+        private String id;
+
+        TextSections(String id) {
+            this.id = id;
+        }
+    }
+
+    public class ParsedArticleText{
+        private String introduction;
+        private List<Section> sections;
+        private String contactDetails;
+        private List<String> topTasks;
+
+        public ParsedArticleText(String introduction, List<Section> sections, String contactDetails, List<String> topTasks) {
+            this.introduction = introduction;
+            this.sections = sections;
+            this.contactDetails = contactDetails;
+            this.topTasks = topTasks;
+        }
+
+        public String getIntroduction() {
+            return introduction;
+        }
+
+        public List<Section> getSections() {
+            return sections;
+        }
+
+        public String getContactDetails() {
+            return contactDetails;
+        }
+
+        public List<String> getTopTasks() {
+            return topTasks;
+        }
+    }
+
+    private static Element parseButtons(Element source){
+        // Get anchor buttons and remove button class
+        List<Element> anchors = source.select("a.button");
+        for (Element anchor : anchors){
+            System.out.println(anchor.html());
+            anchor.removeClass("button");
+        }
+        return source;
+    }
+
+    private static Element parseLinks(Element source, Map<Long, String> gossUrlMap){
+        // Get spans with attribute data-icm-arg2
+        List<Element> links = source.select("span[data-icm-arg2]");
+        for(Element link : links){
+            System.out.println(link.html());
+            Long gossId = Long.parseLong(link.attributes().get("data-icm-arg2"));
+            String text = link.attributes().get("data-icm-arg2name");
+            Element newLink = new Element("a").text(text).attr("href", gossUrlMap.get(1L));;
+            link.replaceWith(newLink);
+        }
+        return source;
+    }
+
+    private List<String> splitTasks(Element source){
+        return null;
+    }
+
+    private List<Section> splitSections(Element source){
+        return null;
+    }
+
+    private String extractInroduction(Element source){
+        return null;
+    }
+
+    public static void test1(String html, Map<Long, String> gossUrlMap){
+        // Turn the comments into elements (so can parse)
+        html = html.replace("!--", "").replace("--", "");
         Document doc = Jsoup.parse(html);
-        removeComments(doc);
+        // Jsoup library adds html + head + body tags.  Only care about body.
+        Element body = doc.selectFirst("body");
+
+        parseLinks(doc, gossUrlMap);
+
+     //   removeComments(doc);
         // Note .wholeText removes all html tags (use this on the h2 title!).
         System.out.println("After:");
         System.out.println(doc.body().html());
         System.out.println("1st h2:");
+     /*
         Element firstH2 = doc.selectFirst("h2");
         System.out.println(firstH2.html());
 
@@ -40,6 +127,7 @@ public class HtmlHelper {
             }
 
         }
+        */
 
     }
 

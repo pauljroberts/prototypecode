@@ -37,7 +37,7 @@ public class GossExportHelper {
         try {
             d = DateUtils.parseDate(date, DF);
         } catch (ParseException e) {
-            // TODO exception.
+            // TODO exception.  Blow up or fail record?
             System.out.println(e);
         }
 
@@ -53,4 +53,6 @@ public class GossExportHelper {
             return false;
         return defaultValue;
     }
+
+
 }

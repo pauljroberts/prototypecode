@@ -15,8 +15,8 @@ public enum GossExportFieldNames {
     ,INTRO("ARTICLEINTROTEXT", false)
     ,DATE("ARTICLEDATE", true)
     ,TEXT("ARTICLETEXT", false)
-    // TODO There is an ARTICALDISPLAYEDATE too?
     ,DISPLAY_DATE("ARTICLEDISPLAYDATE", false)
+    ,DISPLAY_END_DATE("ARTICLEDISPLAYEDATE", false)
     ,DISPLAY("ARTICLEDISPLAY", false)
     ,ARCHIVE_DATE("ARCHIVEDATE", false)
     ;

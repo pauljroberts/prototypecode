@@ -54,7 +54,7 @@ public class GossContentList extends ArrayList<GossContent> {
         // No parent
         if (p.getParentId() == null) {
             p.setDepth(1);
-            p.setJcrPath("/");
+            p.setJcrParentPath("/");
             return;
         }
 
@@ -67,7 +67,7 @@ public class GossContentList extends ArrayList<GossContent> {
         }
 
         p.setDepth(p1.getDepth() + 1);
-        p.setJcrPath(p1.getJcrPath() + p1.getJcrNodeName() + "/");
+        p.setJcrParentPath(p1.getJcrPath() + p1.getJcrNodeName() + "/");
     }
 
 }

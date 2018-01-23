@@ -1,6 +1,7 @@
 package com.paul.prototype;
 
 import com.paul.prototype.config.Constants;
+import com.paul.prototype.misc.HtmlHelper;
 import com.paul.prototype.model.goss.GossContent;
 import com.paul.prototype.model.goss.GossContentList;
 import com.paul.prototype.model.hippo.HippoImportable;
@@ -16,14 +17,20 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ImportTest {
 
     List<HippoImportable> importableItems = new ArrayList<>();
     GossContentList gossContentList = new GossContentList();
+    Map<Long, String> gossContentUrlMap = new HashMap<>();
 
     public static void main(String[] args) throws Exception {
+
+       // HtmlHelper.test1(HtmlHelper.testString2);
+
         ImportTest test = new ImportTest();
 
     }
@@ -32,32 +39,36 @@ public class ImportTest {
 
         clean();
         JSONObject rootJsonObject = readGossExport();
-        populateGossContent(rootJsonObject);
+        populateGossContent(rootJsonObject, 5L);
         pupulateGossContentJcrStructure();
+
+        // TODO delete next.
+       // for(GossContent content : gossContentList){
+       //     HtmlHelper.test1(content.getText(), gossContentUrlMap);
+       // }
+
         populateHippoContent();
         writeContent();
-        //JSONObject rootJsonObject = readSource();
-        // populateMeta(rootJsonObject);
-        // createContent(rootJsonObject);
-        //JSONArray jsonArray = (JSONArray) rootJsonObject.get("docs");
-        // 5 has some h2's
-        //JSONObject a = (JSONObject) jsonArray.get(5);
-        //HtmlHelper.test1((String) a.get("ARTICLETEXT"));
-        //createAssets();
+
     }
 
     private void pupulateGossContentJcrStructure() {
         gossContentList.generateJcrStructure();
-        for (GossContent cm : gossContentList) {
-            System.out.println(cm.getId() + ":" + cm.getDepth() + cm.getJcrPath());
+        for(GossContent content : gossContentList){
+            gossContentUrlMap.put(content.getId(), content.getJcrPath() + content.getJcrNodeName());
         }
     }
 
-    private void populateGossContent(JSONObject rootJsonObject) {
+    private void populateGossContent(JSONObject rootJsonObject, Long limit) {
         JSONArray jsonArray = (JSONArray) rootJsonObject.get("docs");
 
+        int count = 0;
         for (Object childJsonObject : jsonArray) {
+            if(null != limit && limit <= count){
+                break;
+            }
             gossContentList.add(new GossContent((JSONObject) childJsonObject));
+            count++;
         }
     }
 
