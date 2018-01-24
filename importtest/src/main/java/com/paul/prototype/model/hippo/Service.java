@@ -1,5 +1,6 @@
 package com.paul.prototype.model.hippo;
 
+import com.paul.prototype.misc.HtmlHelper;
 import com.paul.prototype.model.goss.GossContent;
 
 import java.util.ArrayList;
@@ -7,32 +8,15 @@ import java.util.List;
 
 public class Service extends HippoImportable {
 
-    // TODO move this into own class
-    public class RichText{
-        private String content;
-        private List<String> docReferences = new ArrayList<>();
-
-        public RichText() {
-            content = "Rich content not developed yet";
-            docReferences.add("\\content\\stuff");
-            docReferences.add("\\2ndref");
-        }
-
-        public String getContent() {
-            return content;
-        }
-
-        public List<String> getDocReferences() {
-            return docReferences;
-        }
-    }
-
     private String seoSummary;
     private String title;
     private String summary;
     private String shortSummary;
-    private List<RichText> topTasks = new ArrayList<>();
 
+    // Do not initialise HippoRichText objects.  Template needs nulls to decide on commas in list seperation
+    private List<HippoRichText> topTasks;
+    private HippoRichText introduction;
+    private List<Section> sections;
 
     public Service(GossContent gossContent) {
         super(gossContent.getHeading(), gossContent.getJcrPath());
@@ -41,7 +25,13 @@ public class Service extends HippoImportable {
         summary = gossContent.getIntroduction();
         shortSummary = gossContent.getSummary();
         // TODO
-        topTasks.add(new RichText());
+        //topTasks = new ArrayList<>();
+        //topTasks.add(new HippoRichText());
+        ParsedArticleText parsedArticleText = HtmlHelper.parseGossArticleText(gossContent.getText());
+
+        // introduction = new HippoRichText(gossContent.getText());
+        //sections = new ArrayList<>();
+        //sections.add(new Section("A section- not developed yet", "", new HippoRichText()));
     }
 
     public String getSeoSummary() {
@@ -60,7 +50,15 @@ public class Service extends HippoImportable {
         return shortSummary;
     }
 
-    public List<RichText> getTopTasks() {
+    public List<HippoRichText> getTopTasks() {
         return topTasks;
+    }
+
+    public HippoRichText getIntroduction() {
+        return introduction;
+    }
+
+    public List<Section> getSections() {
+        return sections;
     }
 }

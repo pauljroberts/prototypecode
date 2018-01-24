@@ -39,7 +39,7 @@ public class ImportTest {
 
         clean();
         JSONObject rootJsonObject = readGossExport();
-        populateGossContent(rootJsonObject, 5L);
+        populateGossContent(rootJsonObject, null);
         pupulateGossContentJcrStructure();
 
         // TODO delete next.

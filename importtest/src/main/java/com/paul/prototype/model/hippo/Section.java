@@ -2,26 +2,24 @@ package com.paul.prototype.model.hippo;
 
 public class Section {
     private String title;
-    private String body;
+    private String type;
+    private HippoRichText content;
 
-    public Section(String title, String body) {
+    public Section(String title, String type, HippoRichText content) {
         this.title = title;
-        this.body = body;
+        this.type = type;
+        this.content = content;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public String getType() {
+        return type;
     }
 
-    public String getBody() {
-        return body;
-    }
-
-    public void setBody(String body) {
-        this.body = body;
+    public HippoRichText getContent() {
+        return content;
     }
 }
