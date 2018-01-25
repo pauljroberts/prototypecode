@@ -1,7 +1,6 @@
 package com.paul.prototype;
 
 import com.paul.prototype.config.Constants;
-import com.paul.prototype.misc.HtmlHelper;
 import com.paul.prototype.model.goss.GossContent;
 import com.paul.prototype.model.goss.GossContentList;
 import com.paul.prototype.model.hippo.HippoImportable;
@@ -21,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ImportTest {
+public class GossImporter {
 
     List<HippoImportable> importableItems = new ArrayList<>();
     GossContentList gossContentList = new GossContentList();
@@ -31,11 +30,11 @@ public class ImportTest {
 
        // HtmlHelper.test1(HtmlHelper.testString2);
 
-        ImportTest test = new ImportTest();
+        GossImporter test = new GossImporter();
 
     }
 
-    private ImportTest() throws IOException {
+    private GossImporter() throws IOException {
 
         clean();
         JSONObject rootJsonObject = readGossExport();
