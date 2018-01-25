@@ -53,7 +53,7 @@ public class GossContentList extends ArrayList<GossContent> {
         }
 
         // No parent
-        if (p.getParentId() == null) {
+        if (p.getParentId() == null || p.getParentId().intValue() == p.getId()) {
             p.setDepth(1);
             p.setJcrParentPath(Config.JCR_SERVICE_DOC_ROOT);
             return;
