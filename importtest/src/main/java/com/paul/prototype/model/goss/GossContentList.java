@@ -1,5 +1,6 @@
 package com.paul.prototype.model.goss;
 
+import com.paul.prototype.config.Config;
 import com.paul.prototype.config.Constants;
 
 import java.util.*;
@@ -54,7 +55,7 @@ public class GossContentList extends ArrayList<GossContent> {
         // No parent
         if (p.getParentId() == null) {
             p.setDepth(1);
-            p.setJcrParentPath(Constants.JCR_DOC_ROOT);
+            p.setJcrParentPath(Config.JCR_SERVICE_DOC_ROOT);
             return;
         }
 

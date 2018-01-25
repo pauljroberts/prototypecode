@@ -1,5 +1,6 @@
 package com.paul.prototype.model.hippo;
 
+import com.paul.prototype.config.Config;
 import com.paul.prototype.config.Constants;
 
 import java.nio.file.Path;
@@ -8,7 +9,7 @@ import java.nio.file.Paths;
 // public class HippoImportableAsset extends HippoImportable {
 public class HippoImportableAsset {
 
-    int assetPathPrefixNameCount = Paths.get(Constants.ASSET_SOURCE_FOLDER).getNameCount();
+    int assetPathPrefixNameCount = Paths.get(Config.ASSET_SOURCE_FOLDER).getNameCount();
 
     public HippoImportableAsset(Path fileToExportPath) {
       /*  super();
