@@ -43,6 +43,7 @@ public class GossContent implements Comparable<GossContent> {
     private String jcrNodeName;
     private ContentType contentType;
     private long gossExportFileLine;
+    private int childrenCount;
 
     public GossContent(JSONObject gossJson, long gossExportFileLine) {
         this.gossExportFileLine = gossExportFileLine;
@@ -212,5 +213,13 @@ public class GossContent implements Comparable<GossContent> {
                 "id=" + id +
                 ", heading='" + heading + '\'' +
                 '}';
+    }
+
+    public int getChildrenCount() {
+        return childrenCount;
+    }
+
+    public void setChildrenCount(int childrenCount) {
+        this.childrenCount = childrenCount;
     }
 }

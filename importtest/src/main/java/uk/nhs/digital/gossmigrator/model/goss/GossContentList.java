@@ -32,6 +32,10 @@ public class GossContentList extends ArrayList<GossContent> {
             Collections.sort(this);
         }
         sorted = true;
+        // TODO lose this and put into migration report.  Handy at the mo though.
+        for(GossContent i: this){
+            LOGGER.info("Goss Id:{}, Parent:{}, Type:{}, Children Count:{}", i.getId(),i.getParentId(), i.getContentType(), i.getChildrenCount());
+        }
     }
 
     private void calculateDepth(GossContent p) {
@@ -60,8 +64,7 @@ public class GossContentList extends ArrayList<GossContent> {
             return;
         }
 
-        // Not yet calculated and has parent.  Need to go
-        // down tree of parents and find longest branch.
+        // Not yet calculated and has parent.
         GossContent p1 = contentMetaMap.get(p.getParentId());
 
         if (null == p1.getDepth()) {
@@ -69,6 +72,7 @@ public class GossContentList extends ArrayList<GossContent> {
         }
 
         p.setDepth(p1.getDepth() + 1);
+        p1.setChildrenCount(p1.getChildrenCount() + 1);
         p.setJcrParentPath(p1.getJcrPath() + "/");
     }
 

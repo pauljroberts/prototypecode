@@ -52,7 +52,6 @@ public class HippoRichText {
         // Get anchor buttons and remove button class
         List<Element> anchors = html.select("a.button");
         for (Element anchor : anchors) {
-            System.out.println(anchor.html());
             anchor.removeClass("button");
         }
     }
@@ -63,7 +62,6 @@ public class HippoRichText {
         // Get spans with attribute data-icm-arg2
         List<Element> links = source.select("span[data-icm-arg2]");
         for (Element link : links) {
-            System.out.println(link.html());
             Long gossId = Long.parseLong(link.attributes().get("data-icm-arg2"));
             String text = link.attributes().get("data-icm-arg2name");
             Element newLink = new Element("a").text(text).attr("href", gossUrlMap.get(1L));
