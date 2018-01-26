@@ -68,7 +68,7 @@ public class ImportableFileWriter {
             // If we fail with one file, make a note of the document that failed and carry on
             //   migrationReport.logError(e, "Failed to write out item:", "Item will not be imported", importableItem.toString());
 
-            System.out.println(e);
+            LOGGER.error("Failed writing file:{}" + importableItem.toString(), e);
         }
     }
 

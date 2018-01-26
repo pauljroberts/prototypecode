@@ -1,8 +1,7 @@
-package uk.nhs.digital.gossmigrator.config;
+package uk.nhs.digital.gossmigrator.model.goss.enums;
 
 public enum GossExportFieldNames {
-    ETC_ID("ETCOBJECTID", true)
-    ,HEADING("ARTICLEHEADING", true)
+    HEADING("ARTICLEHEADING", true)
     ,ID("ARTICLEID", true)
     ,EXTRA("Extra", true)
     ,EXTRA_INCLUDE_RELATED("INCLUDERELATEDARTICLES", false)
@@ -35,5 +34,10 @@ public enum GossExportFieldNames {
 
     public boolean isMandatory() {
         return isMandatory;
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

@@ -1,10 +1,13 @@
 package uk.nhs.digital.gossmigrator.model.goss;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.nhs.digital.gossmigrator.config.Config;
 
 import java.util.*;
 
 public class GossContentList extends ArrayList<GossContent> {
+    private final static Logger LOGGER = LoggerFactory.getLogger(GossContentList.class);
 
     private Map<Long, GossContent> contentMetaMap;
     private Stack<Long> stack;
@@ -18,12 +21,10 @@ public class GossContentList extends ArrayList<GossContent> {
                 contentMetaMap.put(p.getId(), p);
             }
 
-            for (GossContent p : this) {
-                if (p.getDepth() == null) {
-                    stack = new Stack<>();
-                    calculateDepth(p);
-                }
-            }
+            this.stream().filter(p -> p.getDepth() == null).forEach(p -> {
+                stack = new Stack<>();
+                calculateDepth(p);
+            });
 
             for (GossContent p : this) {
                 p.setDepth(contentMetaMap.get(p.getId()).getDepth());
@@ -36,14 +37,15 @@ public class GossContentList extends ArrayList<GossContent> {
     private void calculateDepth(GossContent p) {
         stack.push(p.getId());
         // Check for possible circular dependency and output something useful rather than stack overflow
+        // Pick an arbitary 30 levels of children.  Should be more than enough.
         if (stack.size() > 30) {
-            //log.error("Circlular dependancy");
+            LOGGER.error("Circle dependency");
             StringBuilder errorText = new StringBuilder();
             while (!stack.empty()) {
                 errorText.append(stack.pop()).append(" : ");
             }
-            //log.error(errorText.toString());
-            //   throw new EtlException("Circular prerequisite dependance:" + errorText.toString());
+            LOGGER.error(errorText.toString());
+            throw new RuntimeException("Circular parent/child dependency:" + errorText.toString());
         }
 
         // Already calculated as is dependency of another node
@@ -51,7 +53,7 @@ public class GossContentList extends ArrayList<GossContent> {
             return;
         }
 
-        // No parent
+        // No parent.  Must be root node.
         if (p.getParentId() == null || p.getParentId().intValue() == p.getId()) {
             p.setDepth(1);
             p.setJcrParentPath(Config.JCR_SERVICE_DOC_ROOT);

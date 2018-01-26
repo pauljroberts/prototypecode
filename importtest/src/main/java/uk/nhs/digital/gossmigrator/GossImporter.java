@@ -54,7 +54,7 @@ public class GossImporter {
             System.exit(1);
         }
 
-        GossImporter test = new GossImporter();
+        new GossImporter();
 
     }
 
@@ -63,13 +63,12 @@ public class GossImporter {
         clean();
         JSONObject rootJsonObject = readGossExport();
         populateGossContent(rootJsonObject, null);
-        pupulateGossContentJcrStructure();
+        populateGossContentJcrStructure();
         populateHippoContent();
         writeContent();
-
     }
 
-    private void pupulateGossContentJcrStructure() {
+    private void populateGossContentJcrStructure() {
         gossContentList.generateJcrStructure();
         for (GossContent content : gossContentList) {
             gossContentUrlMap.put(content.getId(), content.getJcrPath() + content.getJcrNodeName());
@@ -80,13 +79,12 @@ public class GossImporter {
         LOGGER.debug("Begin populating GossContent objects.");
         JSONArray jsonArray = (JSONArray) rootJsonObject.get("docs");
 
-        int count = 0;
+        long count = 0;
         for (Object childJsonObject : jsonArray) {
             if (null != limit && limit <= count) {
                 break;
             }
-            gossContentList.add(new GossContent((JSONObject) childJsonObject));
-            count++;
+            gossContentList.add(new GossContent((JSONObject) childJsonObject, ++count));
         }
     }
 
@@ -146,7 +144,7 @@ public class GossImporter {
         }
 
         JSONParser jsonParser = new JSONParser();
-        // TODO split into reading line by line and creating goss model objects one at a time?
+
         String content = Constants.GOSS_EXTRACT_PREFIX;
 
         for (String line : Files.readAllLines(Paths.get(Config.GOSS_CONTENT_SOURCE_FILE))) {

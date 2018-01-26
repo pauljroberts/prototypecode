@@ -8,6 +8,9 @@ import java.util.Properties;
 
 import static uk.nhs.digital.gossmigrator.config.Config.PropertiesEnum.*;
 
+/**
+ * Config from properties file.
+ */
 public class Config {
     private final static Logger LOGGER = LoggerFactory.getLogger(Config.class);
 

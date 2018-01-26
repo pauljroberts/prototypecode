@@ -21,6 +21,7 @@ public abstract class HippoImportable {
      * Absolute path locating a node in JCR repository, for example
      * '{@code /content/documents/corporate-website/publication-system/my-publication}'
      */
+    @SuppressWarnings("unused") // Used by template.
     public String getJcrPath() {
         return jcrPath;
     }
@@ -29,6 +30,8 @@ public abstract class HippoImportable {
         return localizedName;
     }
 
+
+    @SuppressWarnings("unused") // Used by template.
     public String getJcrNodeName() {
         return jcrNodeName;
     }

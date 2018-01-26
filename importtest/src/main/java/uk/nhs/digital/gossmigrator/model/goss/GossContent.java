@@ -1,29 +1,24 @@
 package uk.nhs.digital.gossmigrator.model.goss;
 
 
-import uk.nhs.digital.gossmigrator.misc.GossExportHelper;
-import uk.nhs.digital.gossmigrator.misc.TextHelper;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.nhs.digital.gossmigrator.config.GossExportFieldNames;
+import uk.nhs.digital.gossmigrator.misc.GossExportHelper;
+import uk.nhs.digital.gossmigrator.misc.TextHelper;
+import uk.nhs.digital.gossmigrator.model.goss.enums.ContentType;
+import uk.nhs.digital.gossmigrator.model.goss.enums.GossExportFieldNames;
 
 import java.util.Date;
 
-import static uk.nhs.digital.gossmigrator.misc.GossExportHelper.getBoolean;
-import static uk.nhs.digital.gossmigrator.misc.GossExportHelper.getLong;
-import static uk.nhs.digital.gossmigrator.misc.GossExportHelper.getString;
+import static uk.nhs.digital.gossmigrator.misc.GossExportHelper.*;
+import static uk.nhs.digital.gossmigrator.model.goss.enums.ContentType.SERVICE;
+import static uk.nhs.digital.gossmigrator.model.goss.enums.GossExportFieldNames.*;
 
 public class GossContent implements Comparable<GossContent> {
     private final static Logger LOGGER = LoggerFactory.getLogger(GossContent.class);
 
-    public enum ContentType{
-        SERVICE
-        ,PUBLICATION
-    }
-
     // Fields read from Goss export.
-    private Long etcId;
     private String heading;
     private long id;
     private GossContentExtra extra;
@@ -47,31 +42,33 @@ public class GossContent implements Comparable<GossContent> {
     private String jcrParentPath;
     private String jcrNodeName;
     private ContentType contentType;
+    private long gossExportFileLine;
 
-    public GossContent(JSONObject gossJson) {
+    public GossContent(JSONObject gossJson, long gossExportFileLine) {
+        this.gossExportFileLine = gossExportFileLine;
         JSONObject extraJson = (JSONObject) gossJson.get(GossExportFieldNames.EXTRA.getName());
+        id = getIdOrError(gossJson, ID);
+        LOGGER.debug("Populating GossContentId:{}, File Line:{}", id, gossExportFileLine);
         extra = new GossContentExtra();
-        etcId = getLong(gossJson, GossExportFieldNames.ETC_ID);
-        heading = getString(gossJson, GossExportFieldNames.HEADING);
-        id = getLong(gossJson, GossExportFieldNames.ID);
-        templateId = getLong(gossJson, GossExportFieldNames.TEMPLATE_ID);
-        summary = getString(gossJson, GossExportFieldNames.SUMMARY);
-        friendlyUrl = getString(gossJson, GossExportFieldNames.FRIENDLY_URL);
-        linkText = getString(gossJson, GossExportFieldNames.LINK_TEXT);
-        parentId = getLong(gossJson, GossExportFieldNames.PARENTID);
-        introduction = getString(gossJson, GossExportFieldNames.INTRO);
-        date = GossExportHelper.getDate(gossJson, GossExportFieldNames.DATE);
-        text = getString(gossJson, GossExportFieldNames.TEXT);
-        display = getString(gossJson, GossExportFieldNames.DISPLAY);
-        archiveDate = GossExportHelper.getDate(gossJson, GossExportFieldNames.ARCHIVE_DATE);
-        displayDate = GossExportHelper.getDate(gossJson, GossExportFieldNames.DISPLAY_DATE);
-        displayEndDate = GossExportHelper.getDate(gossJson, GossExportFieldNames.DISPLAY_END_DATE);
-        extra.setIncludeChildArticles(getBoolean(extraJson, GossExportFieldNames.EXTRA_INCLUDE_CHILD, false));
-        extra.setIncludeRelatedArticles(getBoolean(extraJson, GossExportFieldNames.EXTRA_INCLUDE_RELATED, false));
+        heading = getString(gossJson, HEADING, id);
+        templateId = getLong(gossJson, TEMPLATE_ID, id);
+        summary = getString(gossJson, SUMMARY, id);
+        friendlyUrl = getString(gossJson, FRIENDLY_URL, id);
+        linkText = getString(gossJson, LINK_TEXT, id);
+        parentId = getLong(gossJson, PARENTID, id);
+        introduction = getString(gossJson, INTRO, id);
+        date = GossExportHelper.getDate(gossJson, DATE, id);
+        text = getString(gossJson, TEXT, id);
+        display = getString(gossJson, DISPLAY, id);
+        archiveDate = GossExportHelper.getDate(gossJson, ARCHIVE_DATE, id);
+        displayDate = GossExportHelper.getDate(gossJson, DISPLAY_DATE, id);
+        displayEndDate = GossExportHelper.getDate(gossJson, DISPLAY_END_DATE, id);
+        extra.setIncludeChildArticles(getBoolean(extraJson, EXTRA_INCLUDE_CHILD, false));
+        extra.setIncludeRelatedArticles(getBoolean(extraJson, EXTRA_INCLUDE_RELATED, false));
 
         jcrNodeName = TextHelper.toLowerCaseDashedValue(heading);
-        // TODO logic for content type.
-        contentType = ContentType.SERVICE;
+        // TODO logic for content type replaces this.
+        setContentType(SERVICE);
     }
 
     public Integer getDepth() {
@@ -97,22 +94,16 @@ public class GossContent implements Comparable<GossContent> {
         return parentId;
     }
 
-    /**
-     * Reference of the extras object.  Don't think this is of use in import.
-     * @return Extras Id
-     */
-    public Long getEtcId() {
-        return etcId;
-    }
-
     public String getHeading() {
         return heading;
     }
 
+    @SuppressWarnings("unused")
     public GossContentExtra getExtra() {
         return extra;
     }
 
+    @SuppressWarnings("unused")
     public Long getTemplateId() {
         return templateId;
     }
@@ -121,14 +112,17 @@ public class GossContent implements Comparable<GossContent> {
         return summary;
     }
 
+    @SuppressWarnings("unused")
     public String getFriendlyUrl() {
         return friendlyUrl;
     }
 
     /**
      * Text seen on links to the article.
+     *
      * @return Link text.
      */
+    @SuppressWarnings("unused")
     public String getLinkText() {
         return linkText;
     }
@@ -139,28 +133,35 @@ public class GossContent implements Comparable<GossContent> {
 
     /**
      * Article creation date.
+     *
      * @return Creation date.
      */
+    @SuppressWarnings("unused")
     public Date getDate() {
         return date;
     }
 
     /**
      * Either set as on or off if displayed or hidden.
+     *
      * @return on, off or hidden.
      */
+    @SuppressWarnings("unused")
     public String getDisplay() {
         return display;
     }
 
+    @SuppressWarnings("unused")
     public Date getArchiveDate() {
         return archiveDate;
     }
 
     /**
      * Display start date. i.e. When published.
+     *
      * @return date.
      */
+    @SuppressWarnings("unused")
     public Date getDisplayDate() {
         return displayDate;
     }
@@ -176,6 +177,7 @@ public class GossContent implements Comparable<GossContent> {
     /**
      * This is the raw string from the database containing each text area.
      * Each text area is separated into textbody tags with the ID property referencing its name.
+     *
      * @return Html text.
      */
     public String getText() {
@@ -184,8 +186,10 @@ public class GossContent implements Comparable<GossContent> {
 
     /**
      * Date representing when this article will stop displaying
-     * @return
+     *
+     * @return Date
      */
+    @SuppressWarnings("unused")
     public Date getDisplayEndDate() {
         return displayEndDate;
     }

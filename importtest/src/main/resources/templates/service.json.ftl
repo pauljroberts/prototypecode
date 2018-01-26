@@ -1,4 +1,4 @@
-<#-- @ftlvariable name="service" type="com.paul.prototype.model.hippo" -->
+<#-- @ftlvariable name="service" type="uk.nhs.digital.gossmigrator.model.hippo.Service" -->
 {
   "name" : "${service.jcrNodeName}",
   "primaryType" : "publicationsystem:service",

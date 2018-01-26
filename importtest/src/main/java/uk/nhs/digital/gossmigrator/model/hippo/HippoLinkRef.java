@@ -9,10 +9,12 @@ public class HippoLinkRef {
         this.jcrPath = jcrPath;
     }
 
+    @SuppressWarnings("unused") // Used by template
     public String getNodeName() {
         return nodeName;
     }
 
+    @SuppressWarnings("unused") // Used by template
     public String getJcrPath() {
         return jcrPath;
     }

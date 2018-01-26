@@ -11,10 +11,12 @@ public class Section {
         this.content = content;
     }
 
+    @SuppressWarnings("unused") // Used in template
     public String getTitle() {
         return title;
     }
 
+    @SuppressWarnings("unused") // Used in template
     public String getType() {
         return type;
     }
