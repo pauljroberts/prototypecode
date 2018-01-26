@@ -1,9 +1,8 @@
-package com.paul.prototype.model.hippo;
+package uk.nhs.digital.gossmigrator.model.hippo;
 
-import com.paul.prototype.misc.HtmlHelper;
-import com.paul.prototype.model.goss.GossContent;
+import uk.nhs.digital.gossmigrator.misc.HtmlHelper;
+import uk.nhs.digital.gossmigrator.model.goss.GossContent;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Service extends HippoImportable {
@@ -24,14 +23,8 @@ public class Service extends HippoImportable {
         title = gossContent.getHeading();
         summary = gossContent.getIntroduction();
         shortSummary = gossContent.getSummary();
-        // TODO
-        //topTasks = new ArrayList<>();
-        //topTasks.add(new HippoRichText());
-        ParsedArticleText parsedArticleText = HtmlHelper.parseGossArticleText(gossContent.getText());
 
-        // introduction = new HippoRichText(gossContent.getText());
-        //sections = new ArrayList<>();
-        //sections.add(new Section("A section- not developed yet", "", new HippoRichText()));
+        ParsedArticleText parsedArticleText = HtmlHelper.parseGossArticleText(gossContent.getText(), gossContent.getId());
     }
 
     public String getSeoSummary() {

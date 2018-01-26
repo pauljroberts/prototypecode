@@ -1,12 +1,15 @@
-package com.paul.prototype.config;
+package uk.nhs.digital.gossmigrator.config;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
-import static com.paul.prototype.config.Config.PropertiesEnum.*;
+import static uk.nhs.digital.gossmigrator.config.Config.PropertiesEnum.*;
 
 public class Config {
+    private final static Logger LOGGER = LoggerFactory.getLogger(Config.class);
 
     enum PropertiesEnum{
         JCR_ASSET_ROOT_PROP("jcr.asset.root", "Root jcr path to assets. e.g. /content/assets/", false, "/content/assets/")
@@ -48,6 +51,7 @@ public class Config {
     public static String CONTENT_TARGET_FOLDER;
 
     public static void parsePropertiesFile(Properties propertiesMap){
+        LOGGER.info("Properties used:");
         JCR_ASSET_ROOT = getConfig(JCR_ASSET_ROOT_PROP, propertiesMap);
         JCR_SERVICE_DOC_ROOT = getConfig(JCR_SERVICE_DOC_ROOT_PROP, propertiesMap);
         ASSET_SOURCE_FOLDER = getConfig(ASSET_SOURCE_FOLDER_PROP, propertiesMap);
@@ -64,12 +68,12 @@ public class Config {
         }else if(!propertiesEnum.isMandatory && StringUtils.isEmpty(propertyValue)){
             propertyValue = propertiesEnum.defaultValue;
         }
+        LOGGER.info("{}: {}", propertiesEnum.key, propertyValue);
         return propertyValue;
     }
 
     private static void printPropertiesHelp(){
         for(PropertiesEnum property : PropertiesEnum.values()){
-            // TODO log
             System.out.println(property.toString());
         }
     }

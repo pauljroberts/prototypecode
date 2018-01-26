@@ -1,11 +1,14 @@
-package com.paul.prototype;
+package uk.nhs.digital.gossmigrator;
 
-import com.paul.prototype.model.hippo.HippoImportable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import uk.nhs.digital.gossmigrator.model.hippo.HippoImportable;
 import freemarker.core.JSONOutputFormat;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateExceptionHandler;
 import org.apache.commons.lang3.StringUtils;
+import uk.nhs.digital.gossmigrator.misc.TextHelper;
 
 import java.io.StringWriter;
 import java.io.Writer;
@@ -15,14 +18,14 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.paul.prototype.misc.TextHelper.toLowerCaseDashedValue;
-
 public class ImportableFileWriter {
+    private final static Logger LOGGER = LoggerFactory.getLogger(ImportableFileWriter.class);
+
     private static Configuration cfg;
 
     void writeImportableFiles(final List<? extends HippoImportable> importableItems,
                               final Path targetDir) {
-
+        LOGGER.info("Writing content to:{}", targetDir);
 
         for (int i = 1; i <= importableItems.size(); i++) {
 
@@ -34,6 +37,7 @@ public class ImportableFileWriter {
                     targetDir
             );
         }
+        LOGGER.info("Wrote {} files.", importableItems.size());
     }
 
     private void writeImportableFile(final HippoImportable importableItem,
@@ -57,6 +61,7 @@ public class ImportableFileWriter {
 
             final String importableFileContent = writer.toString();
 
+            LOGGER.debug("Writing:{}", targetFilePath);
             Files.write(targetFilePath, importableFileContent.getBytes());
 
         } catch (final Exception e) {
@@ -87,7 +92,7 @@ public class ImportableFileWriter {
                 StringUtils.leftPad("", 1, '_'),
                 importableItem.getClass().getSimpleName().toUpperCase(),
                 "",
-                toLowerCaseDashedValue(importableItem.getLocalizedName())
+                TextHelper.toLowerCaseDashedValue(importableItem.getLocalizedName())
         );
     }
 

@@ -1,4 +1,4 @@
-package com.paul.prototype.model.goss;
+package uk.nhs.digital.gossmigrator.model.goss;
 
 public class GossContentExtra {
     // TODO default to what?

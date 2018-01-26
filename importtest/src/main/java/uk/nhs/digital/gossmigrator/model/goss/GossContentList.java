@@ -1,7 +1,6 @@
-package com.paul.prototype.model.goss;
+package uk.nhs.digital.gossmigrator.model.goss;
 
-import com.paul.prototype.config.Config;
-import com.paul.prototype.config.Constants;
+import uk.nhs.digital.gossmigrator.config.Config;
 
 import java.util.*;
 

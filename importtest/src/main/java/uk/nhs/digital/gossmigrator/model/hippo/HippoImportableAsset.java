@@ -1,7 +1,6 @@
-package com.paul.prototype.model.hippo;
+package uk.nhs.digital.gossmigrator.model.hippo;
 
-import com.paul.prototype.config.Config;
-import com.paul.prototype.config.Constants;
+import uk.nhs.digital.gossmigrator.config.Config;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

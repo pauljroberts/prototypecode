@@ -1,4 +1,4 @@
-package com.paul.prototype.config;
+package uk.nhs.digital.gossmigrator.config;
 
 public enum GossExportFieldNames {
     ETC_ID("ETCOBJECTID", true)

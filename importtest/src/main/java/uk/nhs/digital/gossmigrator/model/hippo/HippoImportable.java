@@ -1,9 +1,8 @@
-package com.paul.prototype.model.hippo;
+package uk.nhs.digital.gossmigrator.model.hippo;
 
-import com.paul.prototype.misc.TextHelper;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
-import static com.paul.prototype.misc.TextHelper.toLowerCaseDashedValue;
+import static uk.nhs.digital.gossmigrator.misc.TextHelper.toLowerCaseDashedValue;
 import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
 public abstract class HippoImportable {

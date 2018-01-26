@@ -1,4 +1,4 @@
-package com.paul.prototype.model.hippo;
+package uk.nhs.digital.gossmigrator.model.hippo;
 
 import java.util.List;
 

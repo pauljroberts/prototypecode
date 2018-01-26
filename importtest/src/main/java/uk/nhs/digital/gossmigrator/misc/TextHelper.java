@@ -1,4 +1,4 @@
-package com.paul.prototype.misc;
+package uk.nhs.digital.gossmigrator.misc;
 
 import org.apache.commons.lang3.StringUtils;
 

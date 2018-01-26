@@ -1,17 +1,19 @@
-package com.paul.prototype;
+package uk.nhs.digital.gossmigrator;
 
-import com.paul.prototype.config.Config;
-import com.paul.prototype.config.Constants;
-import com.paul.prototype.model.goss.GossContent;
-import com.paul.prototype.model.goss.GossContentList;
-import com.paul.prototype.model.hippo.HippoImportable;
-import com.paul.prototype.model.hippo.Service;
 import org.apache.commons.cli.*;
 import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import uk.nhs.digital.gossmigrator.config.Config;
+import uk.nhs.digital.gossmigrator.config.Constants;
+import uk.nhs.digital.gossmigrator.model.goss.GossContent;
+import uk.nhs.digital.gossmigrator.model.goss.GossContentList;
+import uk.nhs.digital.gossmigrator.model.hippo.HippoImportable;
+import uk.nhs.digital.gossmigrator.model.hippo.Service;
 
 import java.io.File;
 import java.io.FileReader;
@@ -21,6 +23,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class GossImporter {
+    private final static Logger LOGGER = LoggerFactory.getLogger(GossImporter.class);
 
     List<HippoImportable> importableItems = new ArrayList<>();
     GossContentList gossContentList = new GossContentList();
@@ -40,12 +43,14 @@ public class GossImporter {
             CommandLine cmd = parser.parse(options, args);
 
             File propertiesFile = Paths.get(cmd.getOptionValue("properties")).toFile();
+            LOGGER.info("Properties file:{}", propertiesFile);
+
             Properties properties = new Properties();
             properties.load(new FileReader(propertiesFile));
             Config.parsePropertiesFile(properties);
-        }catch(MissingOptionException e){
-            System.out.println(e.getMessage());
+        } catch (MissingOptionException e) {
             formatter.printHelp("GossImporter", options);
+            LOGGER.error(e.getMessage(), e);
             System.exit(1);
         }
 
@@ -59,12 +64,6 @@ public class GossImporter {
         JSONObject rootJsonObject = readGossExport();
         populateGossContent(rootJsonObject, null);
         pupulateGossContentJcrStructure();
-
-        // TODO delete next.
-       // for(GossContent content : gossContentList){
-       //     HtmlHelper.test1(content.getText(), gossContentUrlMap);
-       // }
-
         populateHippoContent();
         writeContent();
 
@@ -72,17 +71,18 @@ public class GossImporter {
 
     private void pupulateGossContentJcrStructure() {
         gossContentList.generateJcrStructure();
-        for(GossContent content : gossContentList){
+        for (GossContent content : gossContentList) {
             gossContentUrlMap.put(content.getId(), content.getJcrPath() + content.getJcrNodeName());
         }
     }
 
     private void populateGossContent(JSONObject rootJsonObject, Long limit) {
+        LOGGER.debug("Begin populating GossContent objects.");
         JSONArray jsonArray = (JSONArray) rootJsonObject.get("docs");
 
         int count = 0;
         for (Object childJsonObject : jsonArray) {
-            if(null != limit && limit <= count){
+            if (null != limit && limit <= count) {
                 break;
             }
             gossContentList.add(new GossContent((JSONObject) childJsonObject));
@@ -112,25 +112,36 @@ public class GossImporter {
     */
 
     private void populateHippoContent() {
+        LOGGER.debug("Begin populating hippo content from Goss content.");
         for (GossContent gossContent : gossContentList) {
-            HippoImportable hippoContent = new Service(gossContent);
+            HippoImportable hippoContent = null;
+            switch (gossContent.getContentType()) {
+                case SERVICE:
+                    hippoContent = new Service(gossContent);
+                    break;
+                default:
+                    LOGGER.warn("Goss ID:{}, Unknown content type:{}", gossContent.getId(), gossContent.getContentType());
+            }
             importableItems.add(hippoContent);
         }
     }
 
     private void writeContent() {
+        LOGGER.debug("Begin writeContent");
         ImportableFileWriter writer = new ImportableFileWriter();
         writer.writeImportableFiles(importableItems, Paths.get(Config.CONTENT_TARGET_FOLDER));
     }
 
     private JSONObject readGossExport() throws IOException {
-        // TODO parameterise file path
+        LOGGER.info("Reading Goss content file:{}", Config.GOSS_CONTENT_SOURCE_FILE);
 
         File f = new File(Config.GOSS_CONTENT_SOURCE_FILE);
         if (!f.exists()) {
+            LOGGER.error("File " + Config.GOSS_CONTENT_SOURCE_FILE + " does not exist.");
             throw new RuntimeException("File " + Config.GOSS_CONTENT_SOURCE_FILE + " does not exist.");
         }
         if (!f.isFile()) {
+            LOGGER.error("Not a file :" + Config.GOSS_CONTENT_SOURCE_FILE);
             throw new RuntimeException("Not a file :" + Config.GOSS_CONTENT_SOURCE_FILE);
         }
 
@@ -146,15 +157,18 @@ public class GossImporter {
         try {
             return (JSONObject) jsonParser.parse(content);
         } catch (ParseException e) {
+            LOGGER.error(e.getMessage(), e);
             throw new RuntimeException("Failed Goss JSON parsing", e);
         }
     }
 
     private void clean() {
         try {
+            LOGGER.debug("Recreating content output folder:{}", Config.CONTENT_TARGET_FOLDER);
             FileUtils.deleteDirectory(Paths.get(Config.CONTENT_TARGET_FOLDER).toFile());
             FileUtils.forceMkdir(Paths.get(Config.CONTENT_TARGET_FOLDER).toFile());
         } catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
             throw new RuntimeException("Could not remove directory:" + Config.CONTENT_TARGET_FOLDER);
         }
     }

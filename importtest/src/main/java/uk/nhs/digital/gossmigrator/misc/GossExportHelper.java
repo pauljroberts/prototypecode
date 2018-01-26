@@ -1,8 +1,7 @@
-package com.paul.prototype.misc;
+package uk.nhs.digital.gossmigrator.misc;
 
-import com.paul.prototype.config.GossExportFieldNames;
+import uk.nhs.digital.gossmigrator.config.GossExportFieldNames;
 import org.apache.commons.lang3.time.DateUtils;
-import org.apache.commons.lang3.time.FastDateFormat;
 import org.json.simple.JSONObject;
 
 import java.text.ParseException;

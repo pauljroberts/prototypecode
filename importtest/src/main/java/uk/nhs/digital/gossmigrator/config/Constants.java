@@ -1,4 +1,4 @@
-package com.paul.prototype.config;
+package uk.nhs.digital.gossmigrator.config;
 
 public interface Constants {
     String GOSS_EXTRACT_PREFIX = "{ \"docs\":";

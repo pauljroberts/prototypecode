@@ -1,16 +1,27 @@
-package com.paul.prototype.model.goss;
+package uk.nhs.digital.gossmigrator.model.goss;
 
 
-import com.paul.prototype.misc.GossExportHelper;
-import com.paul.prototype.misc.TextHelper;
+import uk.nhs.digital.gossmigrator.misc.GossExportHelper;
+import uk.nhs.digital.gossmigrator.misc.TextHelper;
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import uk.nhs.digital.gossmigrator.config.GossExportFieldNames;
 
 import java.util.Date;
 
-import static com.paul.prototype.config.GossExportFieldNames.*;
-import static com.paul.prototype.misc.GossExportHelper.*;
+import static uk.nhs.digital.gossmigrator.misc.GossExportHelper.getBoolean;
+import static uk.nhs.digital.gossmigrator.misc.GossExportHelper.getLong;
+import static uk.nhs.digital.gossmigrator.misc.GossExportHelper.getString;
 
 public class GossContent implements Comparable<GossContent> {
+    private final static Logger LOGGER = LoggerFactory.getLogger(GossContent.class);
+
+    public enum ContentType{
+        SERVICE
+        ,PUBLICATION
+    }
+
     // Fields read from Goss export.
     private Long etcId;
     private String heading;
@@ -35,29 +46,32 @@ public class GossContent implements Comparable<GossContent> {
     private Integer depth;
     private String jcrParentPath;
     private String jcrNodeName;
+    private ContentType contentType;
 
     public GossContent(JSONObject gossJson) {
-        JSONObject extraJson = (JSONObject) gossJson.get(EXTRA.getName());
+        JSONObject extraJson = (JSONObject) gossJson.get(GossExportFieldNames.EXTRA.getName());
         extra = new GossContentExtra();
-        etcId = getLong(gossJson, ETC_ID);
-        heading = getString(gossJson, HEADING);
-        id = getLong(gossJson, ID);
-        templateId = getLong(gossJson, TEMPLATE_ID);
-        summary = getString(gossJson, SUMMARY);
-        friendlyUrl = getString(gossJson, FRIENDLY_URL);
-        linkText = getString(gossJson, LINK_TEXT);
-        parentId = getLong(gossJson, PARENTID);
-        introduction = getString(gossJson, INTRO);
-        date = GossExportHelper.getDate(gossJson, DATE);
-        text = getString(gossJson, TEXT);
-        display = getString(gossJson, DISPLAY);
-        archiveDate = GossExportHelper.getDate(gossJson, ARCHIVE_DATE);
-        displayDate = GossExportHelper.getDate(gossJson, DISPLAY_DATE);
-        displayEndDate = GossExportHelper.getDate(gossJson, DISPLAY_END_DATE);
-        extra.setIncludeChildArticles(getBoolean(extraJson, EXTRA_INCLUDE_CHILD, false));
-        extra.setIncludeRelatedArticles(getBoolean(extraJson, EXTRA_INCLUDE_RELATED, false));
+        etcId = getLong(gossJson, GossExportFieldNames.ETC_ID);
+        heading = getString(gossJson, GossExportFieldNames.HEADING);
+        id = getLong(gossJson, GossExportFieldNames.ID);
+        templateId = getLong(gossJson, GossExportFieldNames.TEMPLATE_ID);
+        summary = getString(gossJson, GossExportFieldNames.SUMMARY);
+        friendlyUrl = getString(gossJson, GossExportFieldNames.FRIENDLY_URL);
+        linkText = getString(gossJson, GossExportFieldNames.LINK_TEXT);
+        parentId = getLong(gossJson, GossExportFieldNames.PARENTID);
+        introduction = getString(gossJson, GossExportFieldNames.INTRO);
+        date = GossExportHelper.getDate(gossJson, GossExportFieldNames.DATE);
+        text = getString(gossJson, GossExportFieldNames.TEXT);
+        display = getString(gossJson, GossExportFieldNames.DISPLAY);
+        archiveDate = GossExportHelper.getDate(gossJson, GossExportFieldNames.ARCHIVE_DATE);
+        displayDate = GossExportHelper.getDate(gossJson, GossExportFieldNames.DISPLAY_DATE);
+        displayEndDate = GossExportHelper.getDate(gossJson, GossExportFieldNames.DISPLAY_END_DATE);
+        extra.setIncludeChildArticles(getBoolean(extraJson, GossExportFieldNames.EXTRA_INCLUDE_CHILD, false));
+        extra.setIncludeRelatedArticles(getBoolean(extraJson, GossExportFieldNames.EXTRA_INCLUDE_RELATED, false));
 
         jcrNodeName = TextHelper.toLowerCaseDashedValue(heading);
+        // TODO logic for content type.
+        contentType = ContentType.SERVICE;
     }
 
     public Integer getDepth() {
@@ -178,5 +192,21 @@ public class GossContent implements Comparable<GossContent> {
 
     public String getJcrPath() {
         return jcrParentPath + jcrNodeName;
+    }
+
+    public void setContentType(ContentType contentType) {
+        this.contentType = contentType;
+    }
+
+    public ContentType getContentType() {
+        return contentType;
+    }
+
+    @Override
+    public String toString() {
+        return "GossContent{" +
+                "id=" + id +
+                ", heading='" + heading + '\'' +
+                '}';
     }
 }

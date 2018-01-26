@@ -1,15 +1,13 @@
-package com.paul.prototype.misc;
+package uk.nhs.digital.gossmigrator.misc;
 
 
-import com.paul.prototype.model.goss.GossContent;
-import com.paul.prototype.model.hippo.HippoRichText;
-import com.paul.prototype.model.hippo.ParsedArticleText;
-import com.paul.prototype.model.hippo.Section;
+import uk.nhs.digital.gossmigrator.model.hippo.HippoRichText;
+import uk.nhs.digital.gossmigrator.model.hippo.ParsedArticleText;
+import uk.nhs.digital.gossmigrator.model.hippo.Section;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
-import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,13 +51,13 @@ public class HtmlHelper {
     }
 
 
-    public static ParsedArticleText parseGossArticleText(String gossArticleText){
+    public static ParsedArticleText parseGossArticleText(String gossArticleText, long gossId){
         ParsedArticleText result = new ParsedArticleText();
 
         // Turn the comments into elements (so can parse)
         gossArticleText = gossArticleText.replace("!--", "").replace("--", "");
-        Document doc = Jsoup.parse(gossArticleText)
-                ;
+        Document doc = Jsoup.parse(gossArticleText);
+
         // Jsoup library adds html + head + body tags.  Only care about body.
         Element body = doc.selectFirst("body");
 
