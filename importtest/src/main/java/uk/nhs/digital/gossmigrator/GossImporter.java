@@ -12,6 +12,7 @@ import uk.nhs.digital.gossmigrator.config.Config;
 import uk.nhs.digital.gossmigrator.config.Constants;
 import uk.nhs.digital.gossmigrator.model.goss.GossContent;
 import uk.nhs.digital.gossmigrator.model.goss.GossContentList;
+import uk.nhs.digital.gossmigrator.model.hippo.Asset;
 import uk.nhs.digital.gossmigrator.model.hippo.HippoImportable;
 import uk.nhs.digital.gossmigrator.model.hippo.Service;
 
@@ -19,13 +20,19 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+
+import static uk.nhs.digital.gossmigrator.config.Config.*;
+import static uk.nhs.digital.gossmigrator.config.Constants.OUTPUT_FILE_TYPE_SUFFIX;
 
 public class GossImporter {
     private final static Logger LOGGER = LoggerFactory.getLogger(GossImporter.class);
 
-    List<HippoImportable> importableItems = new ArrayList<>();
+    // TODO add a target path to HippoImportable and combine next 2
+    List<HippoImportable> importableContentItems = new ArrayList<>();
+    List<HippoImportable> importableAssetItems = new ArrayList<>();
     GossContentList gossContentList = new GossContentList();
     Map<Long, String> gossContentUrlMap = new HashMap<>();
 
@@ -54,18 +61,29 @@ public class GossImporter {
             System.exit(1);
         }
 
-        new GossImporter();
+        GossImporter importer = new GossImporter();
+        importer.run();
 
     }
 
-    private GossImporter() throws IOException {
+    public void run() {
+        createAssetHippoImportables();
+        writeHippoAssetImportables();
+        createContentHippoImportables();
+        writeHippoContentImportables();
+    }
 
-        clean();
+    private void createAssetHippoImportables() {
+        // TODO Assets is WIP at the moment.  Leave it not plugged in...
+        cleanFolder(Paths.get(ASSET_TARGET_FOLDER), OUTPUT_FILE_TYPE_SUFFIX);
+    }
+
+    private void createContentHippoImportables() {
+        cleanFolder(Paths.get(CONTENT_TARGET_FOLDER), OUTPUT_FILE_TYPE_SUFFIX);
         JSONObject rootJsonObject = readGossExport();
         populateGossContent(rootJsonObject, null);
         populateGossContentJcrStructure();
         populateHippoContent();
-        writeContent();
     }
 
     private void populateGossContentJcrStructure() {
@@ -88,26 +106,25 @@ public class GossImporter {
         }
     }
 
-
-    /*
     private void createAssets() {
         try {
-            Files.list(Paths.get(Constants.ASSET_SOURCE_FOLDER)).forEach(this::createAsset);
+            Files.walk(Paths.get(ASSET_SOURCE_FOLDER)).forEach(this::createAsset);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Failed reading Asset files.");
+            throw new RuntimeException(e);
         }
-        ImportableFileWriter writer = new ImportableFileWriter();
-        writer.writeImportableFiles(importableItems, Paths.get(Constants.ASSET_TARGET_FOLDER));
     }
-    */
 
-    /*
-    private Asset createAsset(Path file) {
-        Asset a = new Asset(file);
-        importableItems.add(a);
-        return a;
+    private void createAsset(Path file) {
+        Asset a = new Asset(file.getFileName().toString(), JCR_ASSET_ROOT + file.toString(), file);
+        importableAssetItems.add(a);
     }
-    */
+
+    private void writeHippoAssetImportables() {
+        ImportableFileWriter writer = new ImportableFileWriter();
+        writer.writeImportableFiles(importableAssetItems, Paths.get(ASSET_TARGET_FOLDER));
+    }
+
 
     private void populateHippoContent() {
         LOGGER.debug("Begin populating hippo content from Goss content.");
@@ -120,17 +137,17 @@ public class GossImporter {
                 default:
                     LOGGER.warn("Goss ID:{}, Unknown content type:{}", gossContent.getId(), gossContent.getContentType());
             }
-            importableItems.add(hippoContent);
+            importableContentItems.add(hippoContent);
         }
     }
 
-    private void writeContent() {
-        LOGGER.debug("Begin writeContent");
+    private void writeHippoContentImportables() {
+        LOGGER.debug("Begin writeHippoContentImportables");
         ImportableFileWriter writer = new ImportableFileWriter();
-        writer.writeImportableFiles(importableItems, Paths.get(Config.CONTENT_TARGET_FOLDER));
+        writer.writeImportableFiles(importableContentItems, Paths.get(CONTENT_TARGET_FOLDER));
     }
 
-    private JSONObject readGossExport() throws IOException {
+    private JSONObject readGossExport() {
         LOGGER.info("Reading Goss content file:{}", Config.GOSS_CONTENT_SOURCE_FILE);
 
         File f = new File(Config.GOSS_CONTENT_SOURCE_FILE);
@@ -145,10 +162,18 @@ public class GossImporter {
 
         JSONParser jsonParser = new JSONParser();
 
+        // Goss export comes as a JSON array with element per content.
+        // To read all in One go wrap array in a single outer document.
+        // Possible a bad idea and will need to do line by line later.
         String content = Constants.GOSS_EXTRACT_PREFIX;
 
-        for (String line : Files.readAllLines(Paths.get(Config.GOSS_CONTENT_SOURCE_FILE))) {
-            content = content + line;
+        try {
+            for (String line : Files.readAllLines(Paths.get(Config.GOSS_CONTENT_SOURCE_FILE))) {
+                content = content + line;
+            }
+        } catch (IOException e) {
+            LOGGER.error("Failed reading Goss Content JSON File.", e);
+            throw new RuntimeException(e.getMessage(), e);
         }
 
         content = content + Constants.GOSS_EXTRACT_SUFFIX;
@@ -160,14 +185,25 @@ public class GossImporter {
         }
     }
 
-    private void clean() {
-        try {
-            LOGGER.debug("Recreating content output folder:{}", Config.CONTENT_TARGET_FOLDER);
-            FileUtils.deleteDirectory(Paths.get(Config.CONTENT_TARGET_FOLDER).toFile());
-            FileUtils.forceMkdir(Paths.get(Config.CONTENT_TARGET_FOLDER).toFile());
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
-            throw new RuntimeException("Could not remove directory:" + Config.CONTENT_TARGET_FOLDER);
+    /**
+     * Remove .json files from folder or create folder if not exists.
+     * If non json files in folder log warning.
+     * Does not delete recursively.
+     */
+    private void cleanFolder(Path folder, String fileExtension) {
+        File f = folder.toFile();
+        // Check exists.
+        if (f.exists()) {
+            // Check is folder.
+            if (f.isFile()) {
+                LOGGER.error("Expected {} to be a directory not a file.", f);
+            } else {
+                for(File toDelete : f.listFiles()){
+                    if(toDelete.getName().endsWith(fileExtension)){
+                        toDelete.delete();
+                    }
+                }
+            }
         }
     }
 }

@@ -2,6 +2,7 @@ package uk.nhs.digital.gossmigrator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.nhs.digital.gossmigrator.config.Constants;
 import uk.nhs.digital.gossmigrator.model.hippo.HippoImportable;
 import freemarker.core.JSONOutputFormat;
 import freemarker.template.Configuration;
@@ -17,6 +18,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
+
+import static uk.nhs.digital.gossmigrator.config.Constants.OUTPUT_FILE_TYPE_SUFFIX;
 
 public class ImportableFileWriter {
     private final static Logger LOGGER = LoggerFactory.getLogger(ImportableFileWriter.class);
@@ -87,7 +90,7 @@ public class ImportableFileWriter {
 
     private static String getFileName(final int i, final HippoImportable importableItem) {
         return String.format(
-                "%06d%s_%s%s_%s.json",
+                "%06d%s_%s%s_%s" + OUTPUT_FILE_TYPE_SUFFIX,
                 i,
                 StringUtils.leftPad("", 1, '_'),
                 importableItem.getClass().getSimpleName().toUpperCase(),

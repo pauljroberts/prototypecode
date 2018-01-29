@@ -14,7 +14,9 @@ public class GossContentList extends ArrayList<GossContent> {
     private boolean sorted = false;
 
     public void generateJcrStructure() {
-        if (!sorted) {
+        if (sorted) {
+            LOGGER.warn("Collection already sorted once.  Don't sort again!");
+        } else {
 
             contentMetaMap = new HashMap<>();
             for (GossContent p : this) {
@@ -33,17 +35,17 @@ public class GossContentList extends ArrayList<GossContent> {
         }
         sorted = true;
         // TODO lose this and put into migration report.  Handy at the mo though.
-        for(GossContent i: this){
-            LOGGER.info("Goss Id:{}, Parent:{}, Type:{}, Children Count:{}", i.getId(),i.getParentId(), i.getContentType(), i.getChildrenCount());
+        for (GossContent i : this) {
+            LOGGER.info("Goss Id:{}, Parent:{}, Type:{}, Children Count:{}", i.getId(), i.getParentId(), i.getContentType(), i.getChildrenCount());
         }
     }
 
     private void calculateDepth(GossContent p) {
         stack.push(p.getId());
-        // Check for possible circular dependency and output something useful rather than stack overflow
-        // Pick an arbitary 30 levels of children.  Should be more than enough.
+        // Check for possible circular dependency and output something useful rather than stack overflow.
+        // Pick 30 levels of children.  Should be more than enough.
         if (stack.size() > 30) {
-            LOGGER.error("Circle dependency");
+            LOGGER.error("Circular dependency");
             StringBuilder errorText = new StringBuilder();
             while (!stack.empty()) {
                 errorText.append(stack.pop()).append(" : ");
@@ -57,7 +59,7 @@ public class GossContentList extends ArrayList<GossContent> {
             return;
         }
 
-        // No parent.  Must be root node.
+        // No parent.  Must be a root node.
         if (p.getParentId() == null || p.getParentId().intValue() == p.getId()) {
             p.setDepth(1);
             p.setJcrParentPath(Config.JCR_SERVICE_DOC_ROOT);
